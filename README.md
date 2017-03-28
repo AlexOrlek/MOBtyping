@@ -1,6 +1,6 @@
 # Introduction
 
-MOB typing is a method of [plasmid classification] (http://www.sciencedirect.com/science/article/pii/S0147619X16301032). It is based on the detection of 'relaxase' proteins, which are involved in plasmid mobility. To MOB type plasmids from bacteria of the Gammaproteobacteria group, plasmids are BLAST searched against 6 relaxase proteins; each represents a protein family and corresponds to one of 6 MOB types (MOBC, MOBF, MOBH, MOBP, MOBQ, MOBV). Standard non-iterative BLAST has been commonly used for MOB typing. However, this approach is likely to lack power because relaxase proteins - even within the same relaxase protein family - are diverse. This repository provides scripts for detecting relaxases / assigning MOB types, using more powerful (iterative) PSI-BLAST searching. PSI-BLAST harnesses position-specific information about conservation of relaxase protein residues amongst plasmids in a database. A curated plasmid database is provided on an accompanying [Figshare repository] (https://figshare.com/s/18de8bdcbba47dbaba41). The bioinformatic steps can be summarised as follows: one or more untyped plasmids (provided by the user) are appended to the curated plasmid database, and then 6 MOB-relaxase proteins are queried against the updated plasmid database using PSI-BLAST.
+MOB typing is a method of [plasmid classification](http://www.sciencedirect.com/science/article/pii/S0147619X16301032). It is based on the detection of 'relaxase' proteins, which are involved in plasmid mobility. To MOB type plasmids from bacteria of the Gammaproteobacteria group, plasmids are BLAST searched against 6 relaxase proteins; each represents a protein family and corresponds to one of 6 MOB types (MOBC, MOBF, MOBH, MOBP, MOBQ, MOBV). Standard non-iterative BLAST has been commonly used for MOB typing. However, this approach is likely to lack power because relaxase proteins - even within the same relaxase protein family - are diverse. This repository provides scripts for detecting relaxases / assigning MOB types, using more powerful (iterative) PSI-BLAST searching. PSI-BLAST harnesses position-specific information about conservation of relaxase protein residues amongst plasmids in a database. A curated plasmid database is provided on an accompanying [Figshare repository](https://figshare.com/s/18de8bdcbba47dbaba41). The bioinformatic steps can be summarised as follows: one or more untyped plasmids (provided by the user) are appended to the curated plasmid database, and then 6 MOB-relaxase proteins are queried against the updated plasmid database using PSI-BLAST.
 
 
 # Installation
@@ -20,7 +20,7 @@ The scripts have been tested using Ubuntu Version 16.04 and Python Version 2.7. 
 
 # Usage
 
-A parent python script (parentscript.py) calls all other necessary scripts using a custom function that invokes the Python [subprocess module] (https://docs.python.org/2/library/subprocess.html). The parent script takes arguments from the command line:
+A parent python script (parentscript.py) calls all other necessary scripts using a custom function that invokes the Python [subprocess module](https://docs.python.org/2/library/subprocess.html). The parent script takes arguments from the command line:
 
 1. the name (excluding file extension) of the FASTA or Genbank file containing the untyped plasmid(s).  
 2. the number of PSI-BLAST iterations. We recommend 14 iterations, and at least 5 iterations.
@@ -53,7 +53,7 @@ A brief explanation of each script invoked by the parent script is given below:
 
 # Example
 
-After cloning the repository, you will find a Genbank file of a plasmid called pNUC (accession KU852461.1) which is not present in the plasmid database, having been added to NCBI since the original database was compiled. Make sure you have also downloaded the plasmid database and added it to the '/plasmiddatabase' directory, as described above. To MOB type the untyped pNUC plasmid, run the following code from the command line:
+After cloning the repository, you will find a Genbank file of a plasmid called pNUC (accession KU852461.1) which is not present in the plasmid database, having been added to NCBI since the original database was compiled. For details see Olivia et al. 2017 (article in '/untyped_plasmids' directory). Make sure you have also downloaded the plasmid database and added it to the '/plasmiddatabase' directory, as described above. To MOB type the untyped pNUC plasmid, run the following code from the command line:
 
 ```
 
