@@ -1,0 +1,337 @@
+"""This module contains functions for general bioinformatic tasks such as handling fasta files, and running BLAST searches"""
+
+
+def makerowdict(filepath, keyindx=0, appendline=True, startline=1, column=1, appendduplicates=True):  #rather than appending whole line, if false, append a specific column (default indx 1)
+    """makes a row-wise dictionary from a tsv with keys in 1st col and (by default) rest of line as values - if 1st col has duplicate names, these lines will be appended within same key (appendduplicates=True)"""
+    mydict={}
+    fileObj=open(filepath)
+    for line in fileObj:
+        line=line.strip()
+        data=line.split('\t')
+        mykey=data[int(keyindx)]
+        if appendline==True:
+            if appendduplicates==True:
+                if mykey in mydict:
+                    mydict[mykey].append(data[int(startline):])
+                else:
+                    mydict[mykey]=[]
+                    mydict[mykey].append(data[int(startline):])
+            else:
+                mydict[mykey]=[]
+                mydict[mykey].append(data[int(startline):])
+        else: #append specific column not whole line
+            if appendduplicates==True:
+                if mykey in mydict:
+                    try:
+                        mydict[mykey].append(data[int(column)])
+                    except:
+                        mydict[mykey].append('-')
+                else:
+                    mydict[mykey]=[]
+                    try:
+                        mydict[mykey].append(data[int(column)])
+                    except:
+                        mydict[mykey].append('-')
+            else:
+                mydict[mykey]=[]
+                try:
+                    mydict[mykey].append(data[int(column)])
+                except:
+                    mydict[mykey].append('-')
+    fileObj.close()
+    return mydict
+
+
+def makecoldict(filepath, pattern, appendduplicates=True):
+    """makes a dictionary from a tsv col-wise; keys match specific start string pattern and below lines are nested as values - if there are duplicate keys but different lines below this function can't be used"""
+    mydict={}
+    fileObj=open(filepath)
+    for line in fileObj:
+        line=line.strip()
+        data=line.split('\t')
+        if appendduplicates==True:
+            if str(data[0]).startswith(str(pattern)):
+                mykey=str(data[0])
+                if mykey in mydict:
+                    pass
+                else:
+                    mydict[mykey]=[]
+            else:
+                mydict[mykey].append(line)
+                    
+        else:
+            if str(data[0]).startswith(str(pattern)):
+                mykey=str(data[0])
+                mydict[mykey]=[]
+            else:
+                mydict[mykey].append(line)
+    fileObj.close()
+    return mydict
+
+
+                
+def getcol(filepath, col, strip=True):
+    """gets a column from a file and assigns to a variable"""
+    collist=[]
+    fileObj=open(filepath)
+    for line in fileObj:
+        if strip==True:
+            line=line.strip()
+        else:
+            pass
+        data=line.split('\t')
+        collist.append(data[int(col)])
+    return collist
+    fileObj.close()
+
+    
+def unlist(listed):
+    """takes a list and converts to comma-separated string"""
+    unlisted=(",".join(a for a in listed))
+    return unlisted
+
+def savepickle(objecttosave, filepath):
+    """takes an object name and a filepath; saves object as pickle, and closes picklefileObj handle"""
+    import pickle
+    picklefileObj=open(filepath, "wb")
+    pickle.dump(objecttosave, picklefileObj)
+    picklefileObj.close()
+    print "saved pickle"
+
+def openpickle(objecttoopen, filepath): #!! this function doesn't work - can't define variable name like this
+    """takes an object name and a filepath; opens  pickle file with given object name"""
+    import pickle
+    picklefileObj=open(filepath, "rb")
+    objecttoopen=pickle.load(picklefileObj)
+    print "opened pickle"
+
+def writeFastaSeqs(comments, sequences, fastafilepath, width=60):
+    """from list of accessions and sequences, write fastafile"""
+    fastafileObj=open(fastafilepath, 'w')
+    for i, seq in enumerate(sequences):
+        seqlength=len(seq)
+        numLines=1+(seqlength-1)//width
+        seqLines=[seq[width*x:width*(x+1)] for x in range(numLines)]
+        seq='\n'.join(seqLines)
+        fastafileObj.write('>%s\n%s\n' % ((comments[i].strip()), (seq.strip())))
+
+    fastafileObj.close()
+    print "finished writing fasta"
+
+
+def writeIDtableFastaSeqs(comments, sequences, fastafilepath, idtablepath, width=60):
+    """from list of accessions and sequences, write idtable and fastafile - use this when you need an idtable for filtering blast output"""
+    fastafileObj=open(fastafilepath, 'w')
+    idfileObj=open(idtablepath, 'w')
+    for i, seq in enumerate(sequences):
+        seqlength=len(seq)
+        numLines=1+(seqlength-1)//width
+        seqLines=[seq[width*x:width*(x+1)] for x in range(numLines)]
+        seq='\n'.join(seqLines)
+        
+        if comments[i].count("/")>0 or comments[i].count("(")>0 or comments[i].count(")")>0 or comments[i].count("'")>0 or comments[i].count(" ")>0:
+             oldid = comments[i]
+             comments[i]=comments[i].replace("/","_")
+             comments[i]=comments[i].replace("(","_")
+             comments[i]=comments[i].replace(")","_")
+             comments[i]=comments[i].replace("'","_")
+             comments[i]=comments[i].replace(" ","_")
+             newid = comments[i]
+        else:
+             oldid=None
+             newid=comments[i]
+             
+        fastafileObj.write('>%s\n%s\n' % (comments[i].strip(), seq.strip()))
+        idfileObj.write('%s\t%s\t%s\n' % (seqlength, oldid, newid))
+       
+
+    fastafileObj.close()
+    idfileObj.close()
+    print "finished writing fasta and idtable"
+
+
+def writeIDtable(comments, sequences, idtablepath, width=60):
+    """from list of accessions and sequences, write idtable - use this when you need an idtable for filtering blast output"""
+    idfileObj=open(idtablepath, 'w')
+    for i, seq in enumerate(sequences):
+        seqlength=len(seq)
+        
+        if comments[i].count("/")>0 or comments[i].count("(")>0 or comments[i].count(")")>0 or comments[i].count("'")>0 or comments[i].count(" ")>0:
+             oldid = comments[i]
+             comments[i]=comments[i].replace("/","_")
+             comments[i]=comments[i].replace("(","_")
+             comments[i]=comments[i].replace(")","_")
+             comments[i]=comments[i].replace("'","_")
+             comments[i]=comments[i].replace(" ","_")
+             newid = comments[i]
+        else:
+             oldid=None
+             newid=comments[i]
+             
+        idfileObj.write('%s\t%s\t%s\n' % (seqlength, oldid, newid))
+       
+    idfileObj.close()
+
+    
+
+def extractfromfasta(fastafilepath):
+
+    fileObj=open(fastafilepath)                                                                                                        
+
+    comments=[]
+    sequences=[]
+    seq=[]
+
+    for idx, line in enumerate(fileObj):
+        data=line.strip()
+        if data.count('>')>0 and idx==0:
+            data=data.lstrip('>')
+            comments.append(data)                                                                                                                      
+        
+        elif data.count('>')>0 and idx>0:
+            sequences.append(''.join(seq))
+            seq=[]
+            data=data.lstrip('>')
+            comments.append(data)
+        
+        else:                                        
+            seq.append(data)
+        
+    sequences.append(''.join(seq))
+    fileObj.close()
+    print "finished extracting from fasta"
+    return (comments, sequences)
+    
+
+
+#BLAST
+    
+def makeBLASTdb(fastafile, databasename, dbtype, parse_seqids=False): #dbtype can be 'nucl' or 'prot'
+    """takes fastafile filepath, databasename filepath and dbtype args"""
+    import subprocess
+    if parse_seqids==False:
+        cmdArgs=['makeblastdb', '-dbtype', dbtype, '-in', fastafile, '-out', databasename]
+    else:
+        cmdArgs=['makeblastdb', '-dbtype', dbtype, '-in', fastafile, '-out', databasename, '-parse_seqids']
+    subprocess.call(cmdArgs)
+            
+
+#n.b. setting word size to default changes result??
+def runblastn(query, database, blastoutput, evalue=str(10), outfmt=str(6), wordsize=str(11)): #default evalue is 10; default wordsize is 11 for blastn
+    import subprocess
+    evalue=str(evalue) #in case I forget to enter as string
+    wordsize=str(wordsize)
+    cmdArgs=['blastn', '-query', query, '-db', database, '-out', blastoutput, '-evalue', evalue, '-outfmt', outfmt, '-word_size', wordsize]
+    subprocess.call(cmdArgs)
+
+def runblastp(query, database, blastoutput, evalue=str(10), outfmt=str(6), wordsize=str(3)): #default word size is 3 
+    import subprocess
+    evalue=str(evalue)
+    wordsize=str(wordsize)
+    cmdArgs=['blastp', '-query', query, '-db', database, '-out', blastoutput, '-evalue', evalue, '-outfmt', outfmt, '-word_size', wordsize]
+    subprocess.call(cmdArgs)
+            
+def runpsiblast(query, database, writefilepath, iteration, evalue):
+    import subprocess
+    cmdArgs=['psiblast', '-query', query, '-db', database, '-num_iterations', '%s' %iteration, '-num_threads', '1', '-out', writefilepath, '-outfmt', '6', '-evalue', '%s' %evalue]
+    subprocess.call(cmdArgs)
+
+
+def runsubprocess(args,stderrpath=None, stdoutpath=None, writefile=None,shell=False):
+    import subprocess,sys,thread #os
+    """takes a subprocess argument list and runs Popen/communicate(); by default, both output and error are printed to screen; stderrpath and stdoutpath for saving output can be optionally set; a redirect can be optionally set (writefile argument); subthread error handling using keyboard interrupt; function can be used fruitfully since stdout is returned"""
+    if shell==True:
+        processname=args[0]
+        processname=processname.split() 
+    else:
+        processname=args
+    processname=("-".join(a for a in args))
+
+    if stderrpath==None:
+        pass
+    else:
+        if stderrpath.endswith('stderr.txt'): #ensure file ends with non-duplicated 'stderr.txt'
+            stderrpath=str(stderrpath[:-10]).strip()
+        stderrstrip=stderrpath.split('/')[-1]
+        if stderrstrip=='': #there was nothing to strip after / i.e. was just /stderr.txt or stderr.txt
+            pass
+        else:
+            stderrpath=stderrpath[:-(len(stderrstrip))]
+
+        stderrpath=stderrpath+processname+'_'+stderrstrip+'stderr.txt'
+
+    if stdoutpath==None:
+        pass
+    else:
+        if stdoutpath.endswith('stdout.txt'): 
+            stdoutpath=str(stdoutpath[:-10]).strip()
+        stdoutstrip=stdoutpath.split('/')[-1]
+        if stdoutstrip=='': 
+            pass
+        else:
+            stdoutpath=stdoutpath[:-(len(stdoutstrip))]
+
+        stdoutpath=stdoutpath+processname+'_'+stdoutstrip+'stdout.txt'
+
+    
+    print processname, "processname"
+    
+    try:
+
+        if writefile==None:
+            if shell==False:
+                p=subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if shell==True:
+                p=subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            stdout, stderr= p.communicate()
+            print stdout, "stdout"
+            print stderr, "stderr"
+            
+            if stdoutpath==None:
+                pass
+            else:
+                with open(stdoutpath,'w') as stdoutfile:
+                    stdoutfile.write(stdout)
+                
+            if stderrpath==None:
+                pass
+            else:
+                with open(stderrpath,'w') as stderrfile:
+                    stderrfile.write(stderr)
+
+        else:
+            with open(writefile,'w') as stdout:
+                if shell==False:
+                    p=subprocess.Popen(args,stdout=stdout, stderr=subprocess.PIPE)
+                if shell==True:
+                    p=subprocess.Popen(args,stdout=stdout, stderr=subprocess.PIPE, shell=True)
+                stdout, stderr= p.communicate()
+                print stdout, "stdout"
+                print stderr, "stderr"
+                
+                if stderrpath==None:
+                    pass
+                else:
+                    with open(stderrpath,'w') as stderrfile:
+                        stderrfile.write(stderr)
+        
+                
+        if p.returncode==0:
+            print processname, "code has run successfully"
+        else:
+            print "source code fail"
+        
+    except:
+        print "runsubprocess function code error"
+        sys.exit()
+        
+    if p.returncode!=0:
+        if 'driverscript' in str(sys.argv[0]): #if error is triggered in the main thread (driverscript.py) invoke sys.exit(); otherwise (when error triggered in subthread) invoke keyboard interrrupt
+            sys.exit()
+        else:
+            thread.interrupt_main() #Raise a KeyboardInterrupt exception in the main thread. A subthread can use this function to interrupt the main thread.
+    else:
+        return stdout
+
+
+

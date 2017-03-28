@@ -1,0 +1,39 @@
+To find untyped plasmid I searched scholar for "plasmids enterobacteriaceae relaxase" - to find papers where recent/novel plasmid has been mob typed (went with IncQ1 plasmid - the other plasmid (from Tang et al. study) was already included)
+
+~
+
+copied over mobquery fastas and idtable into mobqueries (original queries)
+
+copied over ncbienterobacpickle.CDSrange_dict; renamed to pickle.CDSfeatures_original
+
+copied over ncbienterobacplasmidaccessionproteins.fa; renamed to plasmidproteins_original.fa
+
+~
+
+plasmidtranslate.py  translated plasmid and created plasmidproteins.fa
+
+cdsfeatures.py  extracts CDS feature information from 1. tsv file with first 4 cols in format: accession, start, end, annotation, plasmidlength; OR 2. gb file; OR 3. just uses pickle.CDSfeatures_original
+
+makedbsubprocess.py
+
+BLASTsubprocess.py
+
+combinemobbyiteration.py
+
+additerationnumber.py
+
+blastfilter.py  order by iteration / score; then filter
+
+mobtyping.py
+
+
+~
+#need to translate untyped_plasmid(s) in 6 frames, create fasta (extractandtranslate.py -> plasmidtranslate.py), and concatenate to plasmidproteins.fa
+#need to optionally use genbank to extract CDS features and make pickle.CDSfeatures
+
+#then...need to make database of plasmidproteins.fa (makedbsubprocess.py); then copy pipeline as before
+
+
+
+Notes: number of mob proteins is hardcoded; default set of evalues but could easily adjust; maxiter is flexible.
+Max number of threads used is 6
