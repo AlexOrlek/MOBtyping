@@ -68,7 +68,7 @@ writeFastaSeqs(comments, sequences, "./plasmiddatabase/plasmidproteins_%s_untype
 
 #concatenate plasmidproteins_original, plasmidproteins_untyped
 
-file1="./plasmiddatabase/plasmidproteins_original.fa"
+file1="./plasmiddatabase/translatedproteinseq.fa" #curated plasmid database (proteins translated from nucleotide sequences); the file is on Figshare (https://figshare.com/s/18de8bdcbba47dbaba41)
 file2="./plasmiddatabase/plasmidproteins_%s_untyped.fa" %sys.argv[1]
 writefilepath="./plasmiddatabase/%s_plasmidproteins.fa" %sys.argv[1] 
 args=['cat', file1, file2]
