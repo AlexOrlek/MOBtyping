@@ -53,11 +53,11 @@ A brief explanation of each script invoked by the parent script is given below:
 
 # Example
 
-After cloning the repository, you will find a Genbank file of a plasmid called pNUC (accession KU852461.1) which is not present in the plasmid database, having been added to NCBI since the original database was compiled. For details see Olivia et al. 2017 (article provided in '/untyped_plasmids' directory). Make sure you have also downloaded the plasmid database and added it to the '/plasmiddatabase' directory, as described above. To MOB type the untyped pNUC plasmid, run the following code from the command line:
+After cloning the repository, you will find a Genbank file of a plasmid called pNUC (accession KU852461.1) which is not present in the plasmid database, having been added to NCBI since the original database was compiled. For details see Olivia et al. 2017 (article provided in '/untyped_plasmids' directory). Make sure you have also downloaded the plasmid database and added it to the '/plasmiddatabase' directory, as described above. To MOB type the untyped pNUC plasmid, run the following code from the command line (to reduce run time, only 5 psiblast iterations are specified):
 
 ```
 
-python parentscript.py pNUC 14
+python parentscript.py pNUC 5
 
 ```
 
