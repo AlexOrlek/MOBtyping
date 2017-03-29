@@ -6,7 +6,7 @@ dataprefix=str(sys.argv[1])
 
 runsubprocess(['python', './plasmidtranslate.py', dataprefix])
 runsubprocess(['python', './cdsfeatures.py', dataprefix])
-runsubprocess(['python', './makedbsubprocess.py', dataprefix])
+runsubprocess(['python', './makeblastdb.py', dataprefix])
 
 
 evalue=1 #this is the column index in mobtype_evalues.tsv from which evalues for evalues are extracted for each MOB query - default is column 1, but additional columns could be added to test other sets of evalue thresholds
@@ -20,7 +20,7 @@ iterations=list(range(1,(maxiter+1)))
 for iteration in iterations:
     ps=[]
     for (mob, e) in zip(mobtypes, evalues): #running through mob protein/evalue threshold pairs for a given iteration
-        p = subprocess.Popen(['python', './BLASTsubprocess.py', dataprefix, str(e), str(iteration), str(mob), '&'])
+        p = subprocess.Popen(['python', './psiblast.py', dataprefix, str(e), str(iteration), str(mob), '&'])
         ps.append(p)
     while True:  #once a for loop for a given iteration has completed, call indefinite while loop; break (if subprocesses are complete) or wait
         ps_status=[p.poll() for p in ps]
@@ -32,7 +32,6 @@ for iteration in iterations:
             print "waiting for subprocesses to finish; iteration:", iteration
 
 
-runsubprocess(['python', './combinemobbyiteration.py', dataprefix, str(evalue), str(maxiter)])
 runsubprocess(['python', './additerationnumber.py', dataprefix, str(evalue), str(maxiter)])
 runsubprocess(['python', './blastfilter.py', dataprefix, '0', '0', str(evalue), str(maxiter)]) #(0 0 means no pid/coverage cutoffs by default)    
 runsubprocess(['python', './mobtyping.py', dataprefix, str(evalue), str(maxiter)])
