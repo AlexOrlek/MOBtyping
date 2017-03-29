@@ -1,6 +1,6 @@
 # Introduction
 
-MOB typing is a method of [plasmid classification](http://www.sciencedirect.com/science/article/pii/S0147619X16301032). It is based on the detection of 'relaxase' proteins, which are involved in plasmid mobility. To MOB type plasmids from bacteria of the Gammaproteobacteria group, plasmids are BLAST searched against 6 relaxase proteins; each represents a protein family and corresponds to one of 6 MOB types (MOBC, MOBF, MOBH, MOBP, MOBQ, MOBV). Standard non-iterative BLAST has been commonly used for MOB typing. However, this approach is likely to lack power because relaxase proteins - even within the same relaxase protein family - are diverse. This repository provides scripts for detecting relaxases / assigning MOB types, using more powerful (iterative) PSI-BLAST searching. PSI-BLAST harnesses position-specific information about conservation of relaxase protein residues amongst plasmids in a database. A curated plasmid database is provided in an accompanying [Figshare repository](https://figshare.com/s/18de8bdcbba47dbaba41). The bioinformatic steps can be summarised as follows: one or more untyped plasmids (provided by the user) are appended to the curated plasmid database; 6 MOB-relaxase proteins are then queried against the updated plasmid database using PSI-BLAST.
+MOB typing is a method of [plasmid classification](http://www.sciencedirect.com/science/article/pii/S0147619X16301032). It is based on the detection of 'relaxase' proteins, which are involved in plasmid mobility. To MOB type plasmids from bacteria of the Gammaproteobacteria group, 6 relaxase proteins are used as queries to BLAST search a plasmid dataset, in order to detect relaxase homologs. Each relaxase query represents a protein family and corresponds to one of 6 MOB types (MOBC, MOBF, MOBH, MOBP, MOBQ, MOBV). Standard non-iterative BLAST has been commonly used for MOB typing. However, this approach is likely to lack power because relaxase proteins - even within the same relaxase protein family - are diverse. This repository provides scripts for detecting relaxases / assigning MOB types, using more powerful (iterative) PSI-BLAST searching. PSI-BLAST harnesses position-specific information about conservation of relaxase protein residues amongst plasmids in a database. A curated plasmid database is provided in an accompanying [Figshare repository](https://figshare.com/s/18de8bdcbba47dbaba41). The bioinformatic steps can be summarised as follows: one or more untyped plasmids (provided by the user) are appended to the curated plasmid database; 6 MOB-relaxase proteins are then queried against the updated plasmid database using PSI-BLAST.
 
 
 # Installation
@@ -53,7 +53,7 @@ A brief explanation of each script invoked by the parent script is given below:
 
 # Example
 
-After cloning the repository, you will find a Genbank file of a plasmid called pNUC (accession KU852461.1) which is not present in the plasmid database, having been added to NCBI since the original database was compiled. For details see Olivia et al. 2017 (article in '/untyped_plasmids' directory). Make sure you have also downloaded the plasmid database and added it to the '/plasmiddatabase' directory, as described above. To MOB type the untyped pNUC plasmid, run the following code from the command line:
+After cloning the repository, you will find a Genbank file of a plasmid called pNUC (accession KU852461.1) which is not present in the plasmid database, having been added to NCBI since the original database was compiled. For details see Olivia et al. 2017 (article provided in '/untyped_plasmids' directory). Make sure you have also downloaded the plasmid database and added it to the '/plasmiddatabase' directory, as described above. To MOB type the untyped pNUC plasmid, run the following code from the command line:
 
 ```
 
@@ -61,7 +61,7 @@ python parentscript.py pNUC 14
 
 ```
 
-Navigate to the '/output_final' directory and select the file 'FINAL_OUTPUT_mobtyped_plasmids_1_14.tsv'. At the bottom of the file you will find that pNUC has been typed as MOBQ. To explain the '1_14' suffix: '1' indicates that the file has been generated using the first column of evalues specified in the 'mobtyping_evalues' file (by default this is the only set of evalues used); '14' is the maximum number of iterations run.
+Navigate to the '/output_final' directory and select the file 'FINAL_OUTPUT_mobtyped_plasmids_1_14.tsv'. At the bottom of the file you will find that pNUC has been typed as MOBQ. To explain the '1_14' suffix: '1' indicates that the file has been generated using the first column of evalues specified in the 'mobtyping_evalues' file (by default this is the only set of evalues that can be selected); '14' is the maximum number of iterations run.
 
 
 
