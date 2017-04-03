@@ -74,6 +74,6 @@ The '/output_final' directory contains 3 .tsv files. The 'FINAL_OUTPUT...' file 
 
 # Caveats
 
-The scripts are designed for typing plasmids of the Gammaproteobacteria group, which are thought to belong to 6 MOB types. However, other researchers have used a further 2 relaxase queries to type plasmids from outside Gammaproteobacteria - scripts would need to be modified if the aim is to type non-Gammaproteobacterial plasmids.
+The scripts are designed for MOB typing plasmids of the Gammaproteobacteria group, which are thought to belong to 6 MOB types. Likewise, the curated plasmid database (linked above) includes only Gammaproteobacterial plasmids (of the Enterobacteriaceae family). However, other researchers have used a further 2 relaxase queries to MOB type plasmids from outside the Gammaproteobacteria group. If the aim is to type plasmids from a broad taxonomic range of bacteria, scripts would need to be modified accordingly, in order to incorporate the additional 2 MOB qeuries. In addition, the reference plasmid database would need to be expanded to include non-Gammaproteobacterial plamsids, such that all 8 relaxase protein families would be represented in the database.
 
 Increasing database size inflates evalues, potentially influencing the overall MOB typing results. The scripts are intended to be used for typing a small number of untyped plasmids, such that the size of the plasmid database is not changed considerably after appending the untyped plasmids.
