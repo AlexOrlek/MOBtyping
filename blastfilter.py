@@ -38,7 +38,7 @@ nuclstarts=[]
 nuclends=[]
 for i, line in enumerate(fileObj):
     data=line.split('\t')
-    identifier=data[1].split('|')
+    identifier=data[1].split(';')
     strand=str(identifier[1])  #strand1 or strand-1
     subjectstart=int(data[8])
     subjectend=int(data[9])
@@ -53,8 +53,13 @@ for i, line in enumerate(fileObj):
         nuclend=int(plasmidlength*3)-(int(int(subjectstart-1)*3))
         nuclstarts.append(nuclstart)
         nuclends.append(nuclend)
+    else:
+        print 'error: nuclstart/end not found', data, strand
+    
 
 fileObj.close()
+print len(nuclstarts), 'nuclstarts' ###testing
+print len(nuclends), 'nuclends'
 
 
 #filter mob lengths to match qseqids
@@ -96,7 +101,7 @@ fileObj=open('./output_intermediate/%s_BLASTplasmidproteins3_%s_%s.tsv' %(sys.ar
 for line in open('./output_intermediate/%s_BLASTplasmidproteins2.1_%s_%s.tsv' %(sys.argv[1],sys.argv[4],sys.argv[5])):
     line=line.strip()
     data=line.split('\t')
-    accession=data[1].split('|')[0]
+    accession=data[1].split(';')[0]
     data.append(accession)
     if float(data[2])>int(sys.argv[2]) and float(data[14])>float(sys.argv[3]):  #for no filtering use pid 0 and coverage 0 
         fileObj.write('%s\n' %'\t'.join(data))
@@ -136,7 +141,7 @@ fileObj=open(sortedfile)
 for indx, line in enumerate(fileObj):
     line=line.strip()
     data=line.split('\t')
-    subjectname=data[1].split('|')[0]
+    subjectname=data[1].split(';')[0]
     if subjectname in subjectdict:
         subjectdict[subjectname].append(data)
     else:
@@ -263,7 +268,7 @@ for indx, line in enumerate(fileObj):
         continue
     line=line.strip()
     data=line.split('\t')
-    subjectname=data[1].split('|')[0]
+    subjectname=data[1].split(';')[0]
     if subjectname in subjectdict2:
         subjectdict2[subjectname].append(data)
     else:
@@ -339,5 +344,5 @@ for indxa, accession in enumerate(uniquesseqids):
 
 #remove all intermediate files
 
-args=['rm ./output_intermediate/*']
-runsubprocess(args, shell=True)
+#args=['find ./output_intermediate/ -maxdepth 1 ! -name ".*" -type f -delete']
+#runsubprocess(args, shell=True)

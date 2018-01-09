@@ -59,7 +59,7 @@ for i in range(len(accessions)):
         strand=data[1]
         frame=data[2]
         proteinlength=len(protein)
-        comments.append(str(accessionid)+'|'+str(strand)+'|'+str(frame)+'|'+str(proteinlength))
+        comments.append(str(accessionid)+';'+str(strand)+';'+str(frame)+';'+str(proteinlength))
         sequences.append(protein)
 
 
@@ -68,7 +68,9 @@ writeFastaSeqs(comments, sequences, "./plasmiddatabase/plasmidproteins_%s_untype
 
 #concatenate plasmidproteins_original, plasmidproteins_untyped
 
-file1="./plasmiddatabase/translatedproteinseq.fa" #curated plasmid database (proteins translated from nucleotide sequences); the file is on Figshare (https://figshare.com/s/18de8bdcbba47dbaba41)
+runsubprocess(['cat ./plasmiddatabase/translatedproteinseq.fa | tr "|" ";" > ./plasmiddatabase/translatedproteinseq_v2.fa'],shell=True)
+
+file1="./plasmiddatabase/translatedproteinseq_v2.fa" #curated plasmid database (proteins translated from nucleotide sequences); the file is on Figshare (https://figshare.com/s/18de8bdcbba47dbaba41)
 file2="./plasmiddatabase/plasmidproteins_%s_untyped.fa" %sys.argv[1]
 writefilepath="./plasmiddatabase/%s_plasmidproteins.fa" %sys.argv[1] 
 args=['cat', file1, file2]

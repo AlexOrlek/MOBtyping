@@ -59,9 +59,9 @@ def makeBLASTdb(fastafile, databasename, dbtype, parse_seqids=False): #dbtype ca
     subprocess.call(cmdArgs)
 
     
-def runpsiblast(query, database, writefilepath, iteration, evalue):
+def runpsiblast(query, database, writefilepath, iteration, evalue, num_threads=str(1)):
     import subprocess
-    cmdArgs=['psiblast', '-query', query, '-db', database, '-num_iterations', '%s' %iteration, '-num_threads', '1', '-out', writefilepath, '-outfmt', '6', '-evalue', '%s' %evalue]
+    cmdArgs=['psiblast', '-query', query, '-db', database, '-num_iterations', '%s' %iteration, '-out', writefilepath, '-outfmt', '6', '-evalue', '%s' %evalue, '-num_threads', '%s'%num_threads]
     subprocess.call(cmdArgs)
 
 

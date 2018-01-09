@@ -2,6 +2,8 @@ import sys, subprocess, time
 sys.path.append('./mobtypingmodules')
 from mobmods import runsubprocess, getcol
 
+#e.g. python parentscript untypedplasmids 14 10    #i.e. run to 14 iterations, using 10 threads
+
 dataprefix=str(sys.argv[1])
 
 runsubprocess(['python', './plasmidtranslate.py', dataprefix])
@@ -15,22 +17,24 @@ mobtypes=getcol('./mobtyping_evalues.tsv', 0) #col0 is mobtypes
 evalues=getcol('./mobtyping_evalues.tsv', evalue)
 
 maxiter=int(sys.argv[2])
+threads=int(sys.argv[3])
 iterations=list(range(1,(maxiter+1)))
 
+f=open('./output_intermediate/convergence_%s_%s_%s.tsv'%(dataprefix,evalue,maxiter),'w')
+convergedproteins=[]
 for iteration in iterations:
-    ps=[]
     for (mob, e) in zip(mobtypes, evalues): #running through mob protein/evalue threshold pairs for a given iteration
-        p = subprocess.Popen(['python', './psiblast.py', dataprefix, str(e), str(iteration), str(mob), '&'])
-        ps.append(p)
-    while True:  #once a for loop for a given iteration has completed, call indefinite while loop; break (if subprocesses are complete) or wait
-        ps_status=[p.poll() for p in ps]
-        if all([x is not None for x in ps_status]):
-            print "completed iteration:", iteration
-            break
-        else:
-            time.sleep(5)
-            print "waiting for subprocesses to finish; iteration:", iteration
-
+        if mob in convergedproteins:
+            continue
+        runsubprocess(['python', './psiblast.py', dataprefix, str(e), str(iteration), str(mob), str(threads)])
+        checkconvergence=runsubprocess(['cat ./output_intermediate/%s_BLASTplasmidproteins_%s_%s_%s.tsv | tail'%(dataprefix,e,iteration,mob)],shell=True)
+        if 'Search has CONVERGED!' in checkconvergence:
+            print '%s search has converged at iteration %s'%(mob, iteration)
+            f.write('%s\t%s\t%s\n'%(mob,iteration,'converged'))
+            convergedproteins.append(mob)
+        elif int(iteration)==int(maxiter):
+            f.write('%s\t%s\t%s\n'%(mob,iteration,'notconverged'))
+f.close()
 
 runsubprocess(['python', './additerationnumber.py', dataprefix, str(evalue), str(maxiter)])
 runsubprocess(['python', './blastfilter.py', dataprefix, '0', '0', str(evalue), str(maxiter)]) #(0 0 means no pid/coverage cutoffs by default)    

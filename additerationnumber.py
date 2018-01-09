@@ -1,160 +1,64 @@
 import sys
 sys.path.append('./mobtypingmodules')
-from mobmods import runsubprocess, getcol
+from mobmods import runsubprocess,getcol
 
 
-#for psiblast output at each iteration, combine hits from different MOB queries into a single file
 dataprefix=sys.argv[1]
 evalue=sys.argv[2]
 maxiter=int(sys.argv[3])
-iterations=list(range(1,(maxiter+1)))
-
-mobtypes=getcol('./mobtyping_evalues.tsv', 0)
+mobtypes=getcol('./mobtyping_evalues.tsv', 0) 
 evalues=getcol('./mobtyping_evalues.tsv', evalue)
 
-for iteration in iterations:
-    file1='./output_intermediate/%s_BLASTplasmidproteins_%s_%s_%s.tsv' %(dataprefix, evalues[0], iteration, mobtypes[0])
-    file2='./output_intermediate/%s_BLASTplasmidproteins_%s_%s_%s.tsv' %(dataprefix, evalues[1], iteration, mobtypes[1])
-    file3='./output_intermediate/%s_BLASTplasmidproteins_%s_%s_%s.tsv' %(dataprefix, evalues[2], iteration, mobtypes[2])
-    file4='./output_intermediate/%s_BLASTplasmidproteins_%s_%s_%s.tsv' %(dataprefix, evalues[3], iteration, mobtypes[3])
-    file5='./output_intermediate/%s_BLASTplasmidproteins_%s_%s_%s.tsv' %(dataprefix, evalues[4], iteration, mobtypes[4])
-    file6='./output_intermediate/%s_BLASTplasmidproteins_%s_%s_%s.tsv' %(dataprefix, evalues[5], iteration, mobtypes[5])
-
-    writefilepath='./output_intermediate/%s_BLASTplasmidproteins_%s_%s.tsv' %(dataprefix, evalue, iteration)
-    args=['cat', file1, file2, file3, file4, file5, file6]
-    runsubprocess(args, writefile=writefilepath)
+convergencedict={}  #mob : maxmobiter
+with open('./output_intermediate/convergence_%s_%s_%s.tsv'%(dataprefix,evalue,maxiter)) as f:
+    for line in f:
+        data=line.strip().split('\t')
+        mob=data[0]
+        iteration=data[1]
+        converged=data[2]
+        convergencedict[mob]=iteration
 
 
+hitcountdict={} #mob : [iter 1 count, iter 2 count ...]
+for (mob,e) in zip(mobtypes,evalues):
+    maxmobiter=int(convergencedict[mob])
+    iterations=list(range(1,(maxmobiter+1)))
+    for iteration in iterations:
+        hitcount=runsubprocess(['cat ./output_intermediate/%s_BLASTplasmidproteins_%s_%s_%s.tsv | sed "/^\s*$/d" | sed "/^Search has CONVERGED!*$/d" | wc -l'%(dataprefix, e,iteration,mob)],shell=True) #remove blank lines/search has converged message
+        hitcount=hitcount.strip()
+        if mob in hitcountdict:
+            hitcountdict[mob].append(hitcount)
+        else:
+            hitcountdict[mob]=[]
+            hitcountdict[mob].append(hitcount)
 
-#find the number of mob query hits at each iteration
-evalue=sys.argv[2]
-maxiter=int(sys.argv[3])
-iterations=list(range(1,(maxiter+1)))
-
-for iteration in iterations: 
-
-    mobccounter=0
-    mobfcounter=0
-    mobhcounter=0
-    mobpcounter=0
-    mobqcounter=0
-    mobvcounter=0
-    fileObj=open('./output_intermediate/%s_BLASTplasmidproteins_%s_%s.tsv'%(sys.argv[1], evalue, iteration))   
-    for indx, line in enumerate(fileObj):
-        data=line.split('\t')
-        mobtype=data[0]
-        if mobtype.count('MOBC|')>0:
-            mobccounter=mobccounter+1
-        if mobtype.count('MOBF|')>0:
-            mobfcounter=mobfcounter+1
-        if mobtype.count('MOBH|')>0:
-            mobhcounter=mobhcounter+1
-        if mobtype.count('MOBP|')>0:
-            mobpcounter=mobpcounter+1
-        if mobtype.count('MOBQ|')>0:
-            mobqcounter=mobqcounter+1
-        if mobtype.count('MOBV|')>0:
-            mobvcounter=mobvcounter+1
-
-    print mobccounter,mobfcounter,mobhcounter,mobpcounter,mobqcounter,mobvcounter
-
-    mobtypes=['mobc','mobf','mobh','mobp','mobq','mobv']
-    mobcounters=[mobccounter,mobfcounter,mobhcounter,mobpcounter,mobqcounter,mobvcounter]
-
-    fileObj2=open('./output_intermediate/%s_mobtypecounter_%s_%s.tsv' %(sys.argv[1], evalue, iteration), 'w') 
-    for i in range(len(mobtypes)):
-        fileObj2.write('%s\t%s\n'%(mobtypes[i], mobcounters[i]))
-    
-fileObj.close()
-fileObj2.close()
+#print hitcountdict
 
 
-#add iteration to final file based on mob type number across different iterations
+#write a file: concatenate final iteration files for each mob type, annotating with iteration
 
-#find mobxnumbers
-mobcnumbers=[]
-mobfnumbers=[]
-mobhnumbers=[]
-mobpnumbers=[]
-mobqnumbers=[]
-mobvnumbers=[]
-
-
-for i in iterations:
-    fileObj=open('./output_intermediate/%s_mobtypecounter_%s_%s.tsv' %(sys.argv[1], evalue, i))
-    for indx, line in enumerate(fileObj):
-        data=line.split('\t')
-        if indx==0:
-            mobcnumbers.append(int(data[1].strip()))
-        if indx==1:
-            mobfnumbers.append(int(data[1].strip()))
-        if indx==2:
-            mobhnumbers.append(int(data[1].strip()))
-        if indx==3:
-            mobpnumbers.append(int(data[1].strip()))
-        if indx==4:
-            mobqnumbers.append(int(data[1].strip()))
-        if indx==5:
-            mobvnumbers.append(int(data[1].strip()))
-    fileObj.close()
-        
-print mobcnumbers,mobfnumbers,mobhnumbers,mobpnumbers,mobqnumbers,mobvnumbers  #lists of counts across iterations for given mob type
-
-
-#filter output table to remove blanks and 'reached convergence'
-
-fileObj=open('./output_intermediate/%s_BLASTplasmidproteins_%s_%s.tsv' %(sys.argv[1], evalue, maxiter))
-fileObj2=open('./output_intermediate/%s_BLASTplasmidproteins_%s_%s_filtered.tsv' %(sys.argv[1], evalue, maxiter), "w")
-for indx, line in enumerate(fileObj):
-    if line.strip(): #True if line is not blank
-        if line.count('Search has CONVERGED!')==0:
-            fileObj2.write(line)
-fileObj.close()
-fileObj2.close()
-
-
-#use mobxnumbers to add iteration column to maxiter file
-
-def additeration(mobxnumbers):
-    """for a given mob type, adds iteration number using counts of mob types across iterations; N.B using indices 0-4 etc. for indexing mobxnumbers; using 1-5 etc. to annotate iterations"""
-    if mobindx<=int(mobxnumbers[0]):
-        fileObj2.write('%s\t%s\n' %(line.strip(), '1'))
-    else:
-        for iteration in iterations[1:]:
-            if mobindx<=int(mobxnumbers[iteration-1]):
-                fileObj2.write('%s\t%s\n' %(line.strip(), str(iteration)))
-                break
-            elif mobindx<=int(mobxnumbers[iteration-1]):
-                fileObj2.write('%s\t%s\n' %(line.strip(), str(iteration)))
-                break
-            else:
+f2=open('./output_intermediate/%s_BLASTplasmidproteins_%s_%s_iterationadded.tsv'%(dataprefix, evalue, maxiter),'w')
+for (mob,e) in zip(mobtypes,evalues):
+    maxmobiter=int(convergencedict[mob])
+    with open('./output_intermediate/%s_BLASTplasmidproteins_%s_%s_%s.tsv'%(dataprefix,e,maxmobiter,mob)) as f:
+        mobindx=int(0)
+        hitcounts=hitcountdict[mob]
+        #print hitcounts,'hitcounts'
+        for indx, line in enumerate(f):
+            line=line.strip()
+            if not line.strip():
                 continue
+            if line.startswith('Search has CONVERGED!'):
+                continue
+            data=line.split('\t')
+            #print indx, mobindx, 'indx,mobindx'
+            if indx < int(hitcounts[mobindx]):
+                data.append(str(mobindx+1))
+                f2.write('%s\n'%'\t'.join(data))
+            else:
+                mobindx=mobindx+1
+                data.append(str(mobindx+1))
+                f2.write('%s\n'%'\t'.join(data))
 
 
-
-fileObj=open('./output_intermediate/%s_BLASTplasmidproteins_%s_%s_filtered.tsv'%(sys.argv[1], evalue, maxiter))
-fileObj2=open('./output_intermediate/%s_BLASTplasmidproteins_%s_%s_iterationadded.tsv'%(sys.argv[1], evalue, maxiter),'w')
-
-for indx, line in enumerate(fileObj):
-    print indx
-    data=line.split('\t')
-    mobtype=data[0]
-    if mobtype.count('MOBC|')>0:
-        mobindx=indx+1
-        additeration(mobcnumbers)
-    elif mobtype.count('MOBF|')>0:
-        mobindx=(indx+1)-int(mobcnumbers[maxiter-1])           
-        additeration(mobfnumbers)
-    elif mobtype.count('MOBH|')>0:
-        mobindx=(indx+1)-int(mobcnumbers[maxiter-1])-int(mobfnumbers[maxiter-1])
-        additeration(mobhnumbers)
-    elif mobtype.count('MOBP|')>0:
-        mobindx=(indx+1)-int(mobcnumbers[maxiter-1])-int(mobfnumbers[maxiter-1])-int(mobhnumbers[maxiter-1])
-        additeration(mobpnumbers)
-    elif mobtype.count('MOBQ|')>0:
-        mobindx=(indx+1)-int(mobcnumbers[maxiter-1])-int(mobfnumbers[maxiter-1])-int(mobhnumbers[maxiter-1])-int(mobpnumbers[maxiter-1])
-        additeration(mobqnumbers)
-    elif mobtype.count('MOBV|')>0:
-        mobindx=(indx+1)-int(mobcnumbers[maxiter-1])-int(mobfnumbers[maxiter-1])-int(mobhnumbers[maxiter-1])-int(mobpnumbers[maxiter-1])-int(mobqnumbers[maxiter-1])
-        additeration(mobvnumbers)
-
+    
