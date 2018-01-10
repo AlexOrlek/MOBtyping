@@ -16,7 +16,7 @@ git clone https://github.com/AlexOrlek/MOBtyping.git
 # Software dependencies and input data requirements
 
 The scripts have been tested using Ubuntu Version 16.04 and Python Version 2.7. 
-[Command-line NCBI-BLAST] (https://www.ncbi.nlm.nih.gov/books/NBK52640/#_chapter1_Installation_) will need to be installed
+[Command-line NCBI-BLAST](https://www.ncbi.nlm.nih.gov/books/NBK52640/#_chapter1_Installation_) will need to be installed
 
 To use the scripts, a database of plasmids (as protein sequences) must be added to the '/plasmiddatabase' directory - you can download the curated plasmid database ('translatedproteinseq.fa') provided in the Figshare repository (linked above). In addition, one or more untyped plasmids must be added to the '/untyped_plasmids' directory in either FASTA format or Genbank format. The file name extensions must be either '.fa' or '.gb'. If retrieving a Genbank file from NCBI, download the 'full' file which includes the nucleotide sequence. A Genbank file retrieved from NCBI is likely to include annotations indicating CDS (coding) features - this information will be used when selecting the best PSI-BLAST hit at a locus (a locus will be defined based on the position of the CDS feature). If untyped plasmids are instead provided as a FASTA file, CDS feature annotations can be provided separately in a .tsv file with the first 4 columns containing the following information: plasmid accession, CDS nucleotide start position, CDS nucleotide end position, CDS description (e.g. protein product), plasmid accession length (bp). If no CDS feature information is provided, the code will run using a more simplistic method for selecting the best PSI-BLAST hit at a locus (a locus will be defined based on alignments overlapping at the same position).
 
@@ -61,11 +61,11 @@ After cloning the repository, you will find a Genbank file of a plasmid called p
 
 ```
 
-python parentscript.py pNUC 14 10
+python parentscript.py pNUC 5 10
 
 ```
 
-Navigate to the '/output_final' directory and select the file 'FINAL_OUTPUT_mobtyped_plasmids_1_14.tsv'. You will find that pNUC has been typed as MOBQ. To explain the '1_14' suffix: '1' indicates that the file has been generated using the first column of evalues specified in the 'mobtyping_evalues' file (by default this is the only set of evalues that can be selected); '14' is the maximum number of iterations run.
+Navigate to the '/output_final' directory and select the file 'FINAL_OUTPUT_mobtyped_plasmids_1_5.tsv'. You will find that pNUC has been typed as MOBQ. To explain the '1_5' suffix: '1' indicates that the file has been generated using the first column of evalues specified in the 'mobtyping_evalues' file (by default this is the only set of evalues that can be selected); '5' is the maximum number of iterations run (in this example, 5 iterations have been used for speed).
 
 
 

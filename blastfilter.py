@@ -344,5 +344,5 @@ for indxa, accession in enumerate(uniquesseqids):
 
 #remove all intermediate files
 
-#args=['find ./output_intermediate/ -maxdepth 1 ! -name ".*" -type f -delete']
-#runsubprocess(args, shell=True)
+args=['find ./output_intermediate/ -maxdepth 1 ! -name ".*" -type f -delete']
+runsubprocess(args, shell=True)

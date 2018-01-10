@@ -15,7 +15,7 @@ except:
     try:
         SeqIO.convert("./untyped_plasmids/%s.gb" %sys.argv[1], "genbank", "./untyped_plasmids/%s.fa" %sys.argv[1], "fasta")
     except:
-        print "there is no fasta file or genbank file in the untypeed_plasmids directory; check file extensions are .fa or .gb"
+        print "there is no fasta file or genbank file in the untyped_plasmids directory; check file extensions are .fa or .gb"
 
 
 #extract plasmid dna sequences in order to translate to protein
