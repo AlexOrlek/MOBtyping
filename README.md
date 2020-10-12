@@ -1,4 +1,4 @@
-UPDATE: I now consider the MOBtyping tool to be deprecated (Oct 2020). I would intead recommend using the MacSyFinder program with the CONJscan module to identify conjugative systems and assign MOB types. For more information on MacSyFinder/CONJscan, see [Cury et al. 2020](https://pubmed.ncbi.nlm.nih.gov/31584169/).<br>
+__UPDATE__: I now consider the MOBtyping tool to be deprecated (Oct 2020). I would instead recommend using the MacSyFinder program with the CONJscan module to identify conjugative systems and assign MOB types. For more information on MacSyFinder/CONJscan, see [Cury et al. 2020](https://pubmed.ncbi.nlm.nih.gov/31584169/).<br>
 
 
 # Introduction
